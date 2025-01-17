@@ -852,25 +852,25 @@ else
     # We have a python program to use, but it may be too old.
     # Don't flag an error for --with-python=auto (the default).
     have_python_config=yes
-    python_includes=`${python_prog} ${srcdir}/python/python-config.py --includes`
+    python_includes=`${python_prog} --includes`
     if test $? != 0; then
       have_python_config=failed
       if test "${with_python}" != auto; then
-	AC_MSG_ERROR(failure running python-config --includes)
+	AC_MSG_ERROR(failure running python-config3 --includes)
       fi
     fi
-    python_libs=`${python_prog} ${srcdir}/python/python-config.py --ldflags`
+    python_libs=`${python_prog} --embed --ldflags`
     if test $? != 0; then
       have_python_config=failed
       if test "${with_python}" != auto; then
-	AC_MSG_ERROR(failure running python-config --ldflags)
+	AC_MSG_ERROR(failure running python-config3 --ldflags)
       fi
     fi
-    python_prefix=`${python_prog} ${srcdir}/python/python-config.py --exec-prefix`
+    python_prefix=`${python_prog} --exec-prefix`
     if test $? != 0; then
       have_python_config=failed
       if test "${with_python}" != auto; then
-	AC_MSG_ERROR(failure running python-config --exec-prefix)
+	AC_MSG_ERROR(failure running python-config3 --exec-prefix)
       fi
     fi
   else
