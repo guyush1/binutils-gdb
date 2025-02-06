@@ -147,32 +147,31 @@ packages = ["function", "command", "printer"]
 # manually iterate the list, collating the Python files in each module
 # path.  Construct the module name, and import.
 
-
 def _auto_load_packages():
-    for package in packages:
-        # __file__ isn't set when compiling the module remotely with static python. If Python is static, we
-        # can just skip this method because no Python packages that can be loaded exist. Everything is
-        # supposed to be frozen into the python lib/binary.
-        try:
-            location = os.path.join(os.path.dirname(__file__), package)
-        except NameError:
-            return
-        if os.path.exists(location):
-            py_files = filter(
-                lambda x: x.endswith(".py") and x != "__init__.py", os.listdir(location)
-            )
+    modules = []
+    if PYTHONDIR == "FROZEN":
+        import frozen_utils
 
-            for py_file in py_files:
+        def valid_gdb_auto_import(module_name):
+            return module_name.rpartition(".")[2] != "__init__" and any(module_name.startswith("gdb.%s." % (package)) for package in packages)
+
+        modules.extend(filter(valid_gdb_auto_import, frozen_utils.get_frozen_modules()))
+    else:
+        for package in packages:
+            location = os.path.join(os.path.dirname(__file__), package)
+            if os.path.exists(location):
                 # Construct from foo.py, gdb.module.foo
-                modname = "%s.%s.%s" % (__name__, package, py_file[:-3])
-                try:
-                    if modname in sys.modules:
-                        # reload modules with duplicate names
-                        reload(__import__(modname))
-                    else:
-                        __import__(modname)
-                except Exception:
-                    sys.stderr.write(traceback.format_exc() + "\n")
+                modules.extend("%s.%s.%s" % (__name__, package, filename[:-3]) for filename in filter(lambda x: x.endswith(".py") and x != "__init__.py", os.listdir(location)))
+
+    for modname in modules:
+        try:
+            if modname in sys.modules:
+                # reload modules with duplicate names
+                reload(__import__(modname))
+            else:
+                __import__(modname)
+        except Exception:
+            sys.stderr.write(traceback.format_exc() + "\n")
 
 
 _auto_load_packages()
