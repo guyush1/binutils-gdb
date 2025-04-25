@@ -330,7 +330,7 @@ lose
 #endif],[sim_cv_os_cygwin=yes],[sim_cv_os_cygwin=no])])
 
 dnl Keep in sync with gdb's configure.ac list.
-AC_SEARCH_LIBS(tgetent, [termcap tinfo curses ncurses],
+AC_SEARCH_LIBS(tgetent, [termcap tinfo curses ncurses ncursesw],
   [TERMCAP_LIB=$ac_cv_search_tgetent], [TERMCAP_LIB=""])
 if test x$sim_cv_os_cygwin = xyes; then
   TERMCAP_LIB="${TERMCAP_LIB} -luser32"
